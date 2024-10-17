@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 ---
-# Default values for src.
+# Default values for airflow.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -25,7 +25,7 @@ fullnameOverride: ""
 # Provide a name to substitute for the name of the chart
 nameOverride: ""
 
-# Use standard naming for all resources using src.fullname template
+# Use standard naming for all resources using airflow.fullname template
 # Consider removing this later and default it to true
 # to make this chart follow standard naming conventions using the fullname template.
 # For now this is an opt-in switch for backwards compatibility to leverage the standard naming convention
@@ -42,35 +42,35 @@ useStandardNaming: false
 # Max number of old replicasets to retain. Can be overridden by each deployment's revisionHistoryLimit
 revisionHistoryLimit: ~
 
-# User and group of src user
+# User and group of airflow user
 uid: 50000
 gid: 0
 
-# Default security context for src (deprecated, use `securityContexts` instead)
+# Default security context for airflow (deprecated, use `securityContexts` instead)
 securityContext: {}
 #  runAsUser: 50000
 #  fsGroup: 0
 #  runAsGroup: 0
 
-# Detailed default security context for src deployments
+# Detailed default security context for airflow deployments
 securityContexts:
   pod: {}
   containers: {}
 
-# Global container lifecycle hooks for src containers
+# Global container lifecycle hooks for airflow containers
 containerLifecycleHooks: {}
 
 # Airflow home directory
 # Used for mount paths
-airflowHome: /opt/src
+airflowHome: /opt/airflow
 
-# Default src repository -- overridden by all the specific images below
-defaultAirflowRepository: apache/src
+# Default airflow repository -- overridden by all the specific images below
+defaultAirflowRepository: apache/airflow
 
-# Default src tag to deploy
+# Default airflow tag to deploy
 defaultAirflowTag: "2.9.3"
 
-# Default src digest. If specified, it takes precedence over tag
+# Default airflow digest. If specified, it takes precedence over tag
 defaultAirflowDigest: ~
 
 # Airflow version (Used to make some decisions based on Airflow Version being deployed)
@@ -78,18 +78,18 @@ airflowVersion: "2.9.3"
 
 # Images
 images:
-  src:
-    repository: apache/airflow
-    tag: 2.9.3
+  airflow:
+    repository: ~
+    tag: ~
     # Specifying digest takes precedence over tag.
     digest: ~
     pullPolicy: IfNotPresent
   # To avoid images with user code, you can turn this to 'true' and
-  # all the 'run-src-migrations' and 'wait-for-src-migrations' containers/jobs
+  # all the 'run-airflow-migrations' and 'wait-for-airflow-migrations' containers/jobs
   # will use the images from 'defaultAirflowRepository:defaultAirflowTag' values
   # to run and wait for DB migrations .
   useDefaultImageForMigration: false
-  # timeout (in seconds) for src-migrations to complete
+  # timeout (in seconds) for airflow-migrations to complete
   migrationsWaitTimeout: 60
   pod_template:
     # Note that `images.pod_template.repository` and `images.pod_template.tag` parameters
@@ -114,19 +114,19 @@ images:
     tag: 7.2-bookworm
     pullPolicy: IfNotPresent
   pgbouncer:
-    repository: apache/src
-    tag: src-pgbouncer-2024.01.19-1.21.0
+    repository: apache/airflow
+    tag: airflow-pgbouncer-2024.01.19-1.21.0
     pullPolicy: IfNotPresent
   pgbouncerExporter:
-    repository: apache/src
-    tag: src-pgbouncer-exporter-2024.06.18-0.17.0
+    repository: apache/airflow
+    tag: airflow-pgbouncer-exporter-2024.06.18-0.17.0
     pullPolicy: IfNotPresent
   gitSync:
     repository: registry.k8s.io/git-sync/git-sync
     tag: v4.1.0
     pullPolicy: IfNotPresent
 
-# Select certain nodes for src pods.
+# Select certain nodes for airflow pods.
 nodeSelector: {}
 affinity: {}
 tolerations: []
@@ -272,23 +272,24 @@ executor: "KubernetesExecutor"
 # will be able to launch pods.
 allowPodLaunching: true
 
-# Environment variables for all src containers
+# Environment variables for all airflow containers
 env:
   - name: AIRFLOW__CORE__REMOTE__LOGGING
     value: 'True'
   - name: AIRFLOW__LOGGING__REMOTE__BASE__LOG__FOLDER
-    value: 'gs://pedro-src-logging'
+    value: 'gs://pedro-airflow_test-logging'
   - name: AIRFLOW__LOGGING__REMOTE__LOG__CONN__ID
     value: 'conn-gcp_pedro'
+# - name: ""
+#   value: ""
 
-
-# Volumes for all src containers
+# Volumes for all airflow containers
 volumes: []
 
-# VolumeMounts for all src containers
+# VolumeMounts for all airflow containers
 volumeMounts: []
 
-# Secrets for all src containers
+# Secrets for all airflow containers
 secret: []
 # - envName: ""
 #   secretName: ""
@@ -335,7 +336,7 @@ priorityClasses: []
 extraSecrets: {}
 # eg:
 # extraSecrets:
-#   '{{ .Release.Name }}-src-connections':
+#   '{{ .Release.Name }}-airflow-connections':
 #     type: 'Opaque'
 #     labels:
 #       my.custom.label/v1: my_custom_label_value_1
@@ -362,14 +363,14 @@ extraSecrets: {}
 extraConfigMaps: {}
 # eg:
 # extraConfigMaps:
-#   '{{ .Release.Name }}-src-variables':
+#   '{{ .Release.Name }}-airflow-variables':
 #     labels:
 #       my.custom.label/v2: my_custom_label_value_2
 #     data: |
 #       AIRFLOW_VAR_HELLO_MESSAGE: "Hi!"
 #       AIRFLOW_VAR_KUBERNETES_NAMESPACE: "{{ .Release.Namespace }}"
 
-# Extra env 'items' that will be added to the definition of src containers
+# Extra env 'items' that will be added to the definition of airflow containers
 # a string is expected (can be templated).
 # TODO: difference from `env`? This is a templated string. Probably should template `env` and remove this.
 extraEnv: ~
@@ -378,15 +379,15 @@ extraEnv: ~
 #   - name: AIRFLOW__CORE__LOAD_EXAMPLES
 #     value: 'True'
 
-# Extra envFrom 'items' that will be added to the definition of src containers
+# Extra envFrom 'items' that will be added to the definition of airflow containers
 # A string is expected (can be templated).
 extraEnvFrom: ~
 # eg:
 # extraEnvFrom: |
 #   - secretRef:
-#       name: '{{ .Release.Name }}-src-connections'
+#       name: '{{ .Release.Name }}-airflow-connections'
 #   - configMapRef:
-#       name: '{{ .Release.Name }}-src-variables'
+#       name: '{{ .Release.Name }}-airflow-variables'
 
 # Airflow database & redis config
 data:
@@ -396,7 +397,7 @@ data:
   # kind: Secret
   # apiVersion: v1
   # metadata:
-  #   name: custom-src-metadata-secret
+  #   name: custom-airflow-metadata-secret
   # type: Opaque
   # data:
   #   connection: base64_encoded_connection_string
@@ -438,7 +439,7 @@ data:
 fernetKey: "TYW1Vb80fYzm03i4vsuqU1S8c2a_DgozI-wzc13spao="
 fernetKeySecretName: ~
 
-# Flask secret key for Airflow Webserver: `[webserver] secret_key` in src.cfg
+# Flask secret key for Airflow Webserver: `[webserver] secret_key` in airflow.cfg
 webserverSecretKey: ~
 webserverSecretKeySecretName: ~
 
@@ -471,8 +472,8 @@ kerberos:
   ccacheFileName: cache
   configPath: /etc/krb5.conf
   keytabBase64Content: ~
-  keytabPath: /etc/src.keytab
-  principal: src@FOO.COM
+  keytabPath: /etc/airflow.keytab
+  principal: airflow@FOO.COM
   reinitFrequency: 3600
   config: |
     # This is an example config showing how you can use templating and how "example" config
@@ -501,7 +502,7 @@ kerberos:
 
 # Airflow Worker Config
 workers:
-  # Number of src celery workers in StatefulSet
+  # Number of airflow celery workers in StatefulSet
   replicas: 1
   # Max number of old replicasets to retain
   revisionHistoryLimit: ~
@@ -568,7 +569,7 @@ workers:
     enabled: false
     namespaceLabels: {}
 
-    # How often KEDA polls the src DB to report new scale requests to the HPA
+    # How often KEDA polls the airflow DB to report new scale requests to the HPA
     pollingInterval: 5
 
     # How many seconds KEDA will wait before scaling to zero.
@@ -716,7 +717,7 @@ workers:
   extraVolumes: []
   extraVolumeMounts: []
 
-  # Select certain nodes for src worker pods.
+  # Select certain nodes for airflow worker pods.
   nodeSelector: {}
   runtimeClassName: ~
   priorityClassName: ~
@@ -844,7 +845,7 @@ scheduler:
   # Command to use when running the Airflow scheduler (templated).
   command: ~
   # Args to use when running the Airflow scheduler (templated).
-  args: ["bash", "-c", "exec src scheduler"]
+  args: ["bash", "-c", "exec airflow scheduler"]
 
   # Update Strategy when scheduler is deployed as a StatefulSet
   # (when using LocalExecutor and workers.persistence)
@@ -924,7 +925,7 @@ scheduler:
   extraVolumes: []
   extraVolumeMounts: []
 
-  # Select certain nodes for src scheduler pods.
+  # Select certain nodes for airflow scheduler pods.
   nodeSelector: {}
   affinity: {}
   # default scheduler affinity is:
@@ -1190,7 +1191,7 @@ _rpcServer:
   command:
     - "bash"
   # Args to use when running the Airflow rpc server (templated).
-  args: ["-c", "exec src internal-api"]
+  args: ["-c", "exec airflow internal-api"]
   env: []
   serviceAccount:
     # default value is true
@@ -1327,7 +1328,7 @@ webserver:
   # Command to use when running the Airflow webserver (templated).
   command: ~
   # Args to use when running the Airflow webserver (templated).
-  args: ["bash", "-c", "exec src webserver"]
+  args: ["bash", "-c", "exec airflow webserver"]
 
   # Create ServiceAccount
   serviceAccount:
@@ -1425,7 +1426,7 @@ webserver:
   # webserver_config.py.
   webserverConfig: ~
   # webserverConfig: |
-  #   from src import configuration as conf
+  #   from airflow import configuration as conf
 
   #   # The SQLAlchemy connection string.
   #   SQLALCHEMY_DATABASE_URI = conf.get('database', 'SQL_ALCHEMY_CONN')
@@ -1439,13 +1440,13 @@ webserver:
     ## service annotations
     annotations: {}
     ports:
-      - name: src-ui
+      - name: airflow-ui
         port: "{{ .Values.ports.airflowUI }}"
     # To change the port used to access the webserver:
     # ports:
-    #   - name: src-ui
+    #   - name: airflow-ui
     #     port: 80
-    #     targetPort: src-ui
+    #     targetPort: airflow-ui
     # To only expose a sidecar, not the webserver directly:
     # ports:
     #   - name: only_sidecar
@@ -1454,7 +1455,7 @@ webserver:
     # If you have a public IP, set NodePort to set an external port.
     # Service type must be 'NodePort':
     # ports:
-    #   - name: src-ui
+    #   - name: airflow-ui
     #     port: 8080
     #     targetPort: 8080
     #     nodePort: 31151
@@ -1464,7 +1465,7 @@ webserver:
     #   - "10.123.0.0/16"
     loadBalancerSourceRanges: []
 
-  # Select certain nodes for src webserver pods.
+  # Select certain nodes for airflow webserver pods.
   nodeSelector: {}
   priorityClassName: ~
   affinity: {}
@@ -1501,7 +1502,7 @@ webserver:
 # Airflow Triggerer Config
 triggerer:
   enabled: true
-  # Number of src triggerers in the deployment
+  # Number of airflow triggerers in the deployment
   replicas: 1
   # Max number of old replicasets to retain
   revisionHistoryLimit: ~
@@ -1509,7 +1510,7 @@ triggerer:
   # Command to use when running Airflow triggerers (templated).
   command: ~
   # Args to use when running Airflow triggerer (templated).
-  args: ["bash", "-c", "exec src triggerer"]
+  args: ["bash", "-c", "exec airflow triggerer"]
 
   # Update Strategy when triggerer is deployed as a StatefulSet
   updateStrategy: ~
@@ -1607,7 +1608,7 @@ triggerer:
   extraVolumes: []
   extraVolumeMounts: []
 
-  # Select certain nodes for src triggerer pods.
+  # Select certain nodes for airflow triggerer pods.
   nodeSelector: {}
   affinity: {}
   # default triggerer affinity is:
@@ -1670,7 +1671,7 @@ triggerer:
     enabled: false
     namespaceLabels: {}
 
-    # How often KEDA polls the src DB to report new scale requests to the HPA
+    # How often KEDA polls the airflow DB to report new scale requests to the HPA
     pollingInterval: 5
 
     # How many seconds KEDA will wait before scaling to zero.
@@ -1706,7 +1707,7 @@ triggerer:
 # Airflow Dag Processor Config
 dagProcessor:
   enabled: false
-  # Number of src dag processors in the deployment
+  # Number of airflow dag processors in the deployment
   replicas: 1
   # Max number of old replicasets to retain
   revisionHistoryLimit: ~
@@ -1714,7 +1715,7 @@ dagProcessor:
   # Command to use when running Airflow dag processors (templated).
   command: ~
   # Args to use when running Airflow dag processor (templated).
-  args: ["bash", "-c", "exec src dag-processor"]
+  args: ["bash", "-c", "exec airflow dag-processor"]
 
   # Update Strategy for dag processors
   strategy:
@@ -1794,7 +1795,7 @@ dagProcessor:
   extraVolumes: []
   extraVolumeMounts: []
 
-  # Select certain nodes for src dag processor pods.
+  # Select certain nodes for airflow dag processor pods.
   nodeSelector: {}
   affinity: {}
   # default dag processor affinity is:
@@ -1965,7 +1966,7 @@ flower:
   extraVolumes: []
   extraVolumeMounts: []
 
-  # Select certain nodes for src flower pods.
+  # Select certain nodes for airflow flower pods.
   nodeSelector: {}
   affinity: {}
   tolerations: []
@@ -2339,7 +2340,7 @@ redis:
 
   podAnnotations: {}
 # Auth secret for a private registry
-# This is used if pulling src images from a private registry
+# This is used if pulling airflow images from a private registry
 registry:
   secretName: ~
 
@@ -2400,12 +2401,12 @@ cleanup:
   # Command to use when running the cleanup cronjob (templated).
   command: ~
   # Args to use when running the cleanup cronjob (templated).
-  args: ["bash", "-c", "exec src kubernetes cleanup-pods --namespace={{ .Release.Namespace }}"]
+  args: ["bash", "-c", "exec airflow kubernetes cleanup-pods --namespace={{ .Release.Namespace }}"]
 
   # jobAnnotations are annotations on the cleanup CronJob
   jobAnnotations: {}
 
-  # Select certain nodes for src cleanup pods.
+  # Select certain nodes for airflow cleanup pods.
   nodeSelector: {}
   affinity: {}
   tolerations: []
@@ -2468,7 +2469,7 @@ postgresql:
     username: ""
     password: ""
 
-# Config settings to go into the mounted src.cfg
+# Config settings to go into the mounted airflow.cfg
 #
 # Please note that these values are passed through the `tpl` function, so are
 # all subject to being rendered as go templates. If you need to include a
@@ -2493,8 +2494,8 @@ config:
   metrics:
     statsd_on: '{{ ternary "True" "False" .Values.statsd.enabled }}'
     statsd_port: 9125
-    statsd_prefix: src
-    statsd_host: '{{ printf "%s-statsd" (include "src.fullname" .) }}'
+    statsd_prefix: airflow
+    statsd_host: '{{ printf "%s-statsd" (include "airflow.fullname" .) }}'
   webserver:
     enable_proxy_fix: 'True'
     # For Airflow 1.10
@@ -2507,8 +2508,8 @@ config:
     # statsd params included for Airflow 1.10 backward compatibility; moved to [metrics] in 2.0
     statsd_on: '{{ ternary "True" "False" .Values.statsd.enabled }}'
     statsd_port: 9125
-    statsd_prefix: src
-    statsd_host: '{{ printf "%s-statsd" (include "src.fullname" .) }}'
+    statsd_prefix: airflow
+    statsd_host: '{{ printf "%s-statsd" (include "airflow.fullname" .) }}'
     # `run_duration` included for Airflow 1.10 backward compatibility; removed in 2.0.
     run_duration: 41460
   elasticsearch:
@@ -2525,7 +2526,7 @@ config:
     ccache: '{{ .Values.kerberos.ccacheMountPath }}/{{ .Values.kerberos.ccacheFileName }}'
   celery_kubernetes_executor:
     kubernetes_queue: 'kubernetes'
-  # The `kubernetes` section is deprecated in Airflow >= 2.5.0 due to an src.cfg schema change.
+  # The `kubernetes` section is deprecated in Airflow >= 2.5.0 due to an airflow.cfg schema change.
   # The `kubernetes` section can be removed once the helm chart no longer supports Airflow < 2.5.0.
   kubernetes:
     namespace: '{{ .Release.Namespace }}'
@@ -2533,15 +2534,15 @@ config:
     airflow_configmap: '{{ include "airflow_config" . }}'
     airflow_local_settings_configmap: '{{ include "airflow_config" . }}'
     pod_template_file: '{{ include "airflow_pod_template_file" . }}/pod_template_file.yaml'
-    worker_container_repository: '{{ .Values.images.src.repository | default .Values.defaultAirflowRepository }}'
-    worker_container_tag: '{{ .Values.images.src.tag | default .Values.defaultAirflowTag }}'
+    worker_container_repository: '{{ .Values.images.airflow.repository | default .Values.defaultAirflowRepository }}'
+    worker_container_tag: '{{ .Values.images.airflow.tag | default .Values.defaultAirflowTag }}'
     multi_namespace_mode: '{{ ternary "True" "False" .Values.multiNamespaceMode }}'
-  # The `kubernetes_executor` section duplicates the `kubernetes` section in Airflow >= 2.5.0 due to an src.cfg schema change.
+  # The `kubernetes_executor` section duplicates the `kubernetes` section in Airflow >= 2.5.0 due to an airflow.cfg schema change.
   kubernetes_executor:
     namespace: '{{ .Release.Namespace }}'
     pod_template_file: '{{ include "airflow_pod_template_file" . }}/pod_template_file.yaml'
-    worker_container_repository: '{{ .Values.images.src.repository | default .Values.defaultAirflowRepository }}'
-    worker_container_tag: '{{ .Values.images.src.tag | default .Values.defaultAirflowTag }}'
+    worker_container_repository: '{{ .Values.images.airflow.repository | default .Values.defaultAirflowRepository }}'
+    worker_container_tag: '{{ .Values.images.airflow.tag | default .Values.defaultAirflowTag }}'
     multi_namespace_mode: '{{ ternary "True" "False" .Values.multiNamespaceMode }}'
   triggerer:
     default_capacity: 1000
@@ -2567,7 +2568,7 @@ podTemplate: ~
 #   metadata:
 #     name: placeholder-name
 #     labels:
-#       tier: src
+#       tier: airflow
 #       component: worker
 #       release: {{ .Release.Name }}
 #   spec:
@@ -2600,10 +2601,10 @@ dags:
     enabled: true
 
     # git repo clone url
-    # ssh example: git@github.com:apache/src.git
+    # ssh example: git@github.com:apache/airflow.git
     # https example: https://github.com/apache/airflow.git
     repo: https://github.com/phmingueto/airflow_test.git
-    branch: main
+    branch: master
     rev: HEAD
     # The git revision (branch, tag, or hash) to check out, v4 only
     ref: v2-2-stable
@@ -2638,12 +2639,12 @@ dags:
     #   apiVersion: v1
     #   kind: Secret
     #   metadata:
-    #     name: src-ssh-secret
+    #     name: airflow-ssh-secret
     #   data:
     #     # key needs to be gitSshKey
     #     gitSshKey: <base64_encoded_data>
     # and specify the name of the secret below
-    # sshKeySecret: src-ssh-secret
+    # sshKeySecret: airflow-ssh-secret
     #
     # Or set sshKeySecret with your key
     # sshKey: |-
