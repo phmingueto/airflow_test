@@ -78,9 +78,9 @@ airflowVersion: "2.9.3"
 
 # Images
 images:
-  airflow:
-    repository: ~
-    tag: ~
+  src:
+    repository: apache/airflow
+    tag: 2.9.3
     # Specifying digest takes precedence over tag.
     digest: ~
     pullPolicy: IfNotPresent
@@ -2602,8 +2602,8 @@ dags:
     # git repo clone url
     # ssh example: git@github.com:apache/src.git
     # https example: https://github.com/apache/airflow.git
-    repo: https://github.com/apache/airflow.git
-    branch: v2-2-stable
+    repo: https://github.com/phmingueto/airflow_test.git
+    branch: main
     rev: HEAD
     # The git revision (branch, tag, or hash) to check out, v4 only
     ref: v2-2-stable
