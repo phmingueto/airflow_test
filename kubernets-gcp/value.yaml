@@ -1436,7 +1436,7 @@ webserver:
   webserverConfigConfigMapName: ~
 
   service:
-    type: LoaderBalancer
+    type: LoadBalancer
     ## service annotations
     annotations: {}
     ports:
